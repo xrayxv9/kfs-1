@@ -53,11 +53,28 @@ uint8_t	*init_font(){
 	return glyphs;
 }
 
-int kernel_main() {
-	uint8_t		*glyphs;
+void kernel_main(uint32_t magic, struct multiboot_info *mbi) {
+    uint8_t *glyphs;
 
-	glyphs = init_font();
-	if (glyphs == 0x0)
-		return 1;
-	return 0;
+    if (magic != 0x2BADB002) return;            /* not start with multiboot launcher */
+    if (!CHECK_FLAG(mbi->flags, 12)) return;    /* no framebuffer */
+    if (mbi->framebuffer_bpp != 32) return;     /* this code write only 32bits pixels */
+
+    uint32_t *fb = (uint32_t *)(uintptr_t)mbi->framebuffer_addr;
+    uint32_t pitch = mbi->framebuffer_pitch;
+
+    /* remplit l'écran en bleu (si bpp == 32) */
+    for (uint32_t y = 0; y < mbi->framebuffer_height; y++) {
+        for (uint32_t x = 0; x < mbi->framebuffer_width; x++) {
+            fb[y * (pitch / 4) + x] = 0x000000FF;
+        }
+    }
+
+    glyphs = init_font();
+    if (glyphs == 0x0){
+		return;
+	}
+
+	idt_init();
+
 }
