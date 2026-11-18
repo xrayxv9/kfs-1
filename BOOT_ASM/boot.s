@@ -1,10 +1,10 @@
 /* Declare constants for the multiboot header. */
-.set ALIGN,             1<<0             /* align loaded modules on page boundaries */
-.set MEMINFO,			1<<1             /* provide memory map */
-.set VBE_INFO,			1<<2			 /* provides frame buffer */
-.set FLAGS,             ALIGN | MEMINFO | VBE_INFO /* this is the Multiboot 'flag' field */
-.set MAGIC,             0x1BADB002       /* 'magic number' lets bootloader find the header */
-.set CHECKSUM,			-(MAGIC + FLAGS) /* checksum of above, to prove we are multiboot */
+.set ALIGN,    1<<0                             /* align loaded modules on page boundaries */
+.set MEMINFO,  1<<1                             /* provide memory map */
+.set VIDMODE,  1<<2                             /* request video mode / framebuffer */
+.set FLAGS,    ALIGN | MEMINFO | VIDMODE        /* this is the Multiboot 'flag' field */
+.set MAGIC,    0x1BADB002                       /* 'magic number' lets bootloader find the header */
+.set CHECKSUM, -(MAGIC + FLAGS)                 /* checksum of above, to prove we are multiboot */
 
 /*
 Declare a multiboot header that marks the program as a kernel. These are magic
@@ -18,11 +18,11 @@ forced to be within the first 8 KiB of the kernel file.
 .long MAGIC
 .long FLAGS
 .long CHECKSUM
-
-.long					0				/* linear mode */
-.long					1920			/* Length */
-.long					1080			/* Height */
-.long					32				/* Color depth */
+.long 0, 0, 0, 0, 0     /* header_addr, load_addr, load_end_addr, bss_end_addr, entry_addr (not used without 16 bits) */
+.long 0                 /* mode_type */
+.long 1920              /* width */
+.long 1080              /* height */
+.long 32                /* depth */
 
 /*
 The multiboot standard does not define the value of the stack pointer register
@@ -70,6 +70,8 @@ _start:
         in assembly as languages such as C cannot function without a stack.
         */
         mov $stack_top, %esp
+        pushl $0
+        popf
 
         /*
         This is a good place to initialize crucial processor state before the
@@ -90,6 +92,9 @@ _start:
         stack since (pushed 0 bytes so far), so the alignment has thus been
         preserved and the call is well defined.
         */
+        sub $8, %esp
+        push %ebx
+        push %eax
         call kernel_main
 
         /*
