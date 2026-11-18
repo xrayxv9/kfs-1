@@ -29,9 +29,10 @@ void idt_init() {
     __asm__ volatile ("sti"); // set the interrupt flag
 }
 
-__attribute__((noreturn));
-void exception_handler(){
-	__asm__ volatile ("cli;hlt");
+__attribute__((noreturn)) void exception_handler(){
+	while (1){
+		__asm__ volatile ("cli;hlt");
+	}
 }
 
 uint8_t	*init_font(){
@@ -52,7 +53,7 @@ uint8_t	*init_font(){
 	return glyphs;
 }
 
-int main() {
+int kernel_main() {
 	uint8_t		*glyphs;
 
 	glyphs = init_font();
