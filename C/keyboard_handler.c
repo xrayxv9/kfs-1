@@ -1,7 +1,6 @@
 #include "multiboot.h"
 
 void keyboard_handler(){
-	outb(0xe9, 'K'); // si tu vois 'K' dans le terminal, tu es bien entré !
 	(void)inb(0x60);
 	for (uint32_t y = 0; y < g_display.height; y++) {
         for (uint32_t x = 0; x < g_display.width; x++) {
