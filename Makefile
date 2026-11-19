@@ -25,7 +25,7 @@ FONT_PATH = FONTS/
 # Source Files (noms de fichiers seuls)
 ASM_BOOT = boot.s
 ASM_INT = interrupt.s
-C_KERNEL = kernel.c
+C_KERNEL = kernel.c font_handler.c pic_handler.c idt_handler.c keyboard_handler.c
 FONT_FILE = Lat15-Terminus16.psf
 HEADERS = $(C_PATH)multiboot.h
 
