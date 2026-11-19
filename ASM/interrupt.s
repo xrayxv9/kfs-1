@@ -1,6 +1,7 @@
 
 ; Gets the exception_handler from the C file 
 extern exception_handler
+extern keyboard_handler
 
 ; this gets the errors thrown by the CPU with an additional word to 'describe' the error (clean it after gertting this type of code)
 %macro isr_err_stub 1
@@ -16,6 +17,18 @@ isr_stub_%+%1:
     iret
 %endmacro
 
+
+
+%macro isr_entry 2
+global isr_stub_%+%1
+isr_stub_%+%1:
+	pushad
+	call %2
+	popad
+	iret
+%endmacro
+
+isr_entry keyboard, keyboard_handler
 ; Expands all the macros depending on which one gives a describing word 
 isr_no_err_stub 0
 isr_no_err_stub 1
