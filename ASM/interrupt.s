@@ -1,4 +1,3 @@
-
 ; Gets the exception_handler from the C file 
 extern exception_handler
 extern keyboard_handler
