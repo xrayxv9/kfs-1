@@ -27,6 +27,13 @@ extern char _binary_Lat15_Terminus16_psf_size[];
 #define IDT_MAX_DESCRIPTORS			256
 #define PIC_READ_IRR                0x0a    /* OCW3 irq ready next CMD read */
 #define PIC_READ_ISR                0x0b    /* OCW3 irq service next CMD read */
+#define LSHIFT_SCANCODE_PRESSED		0x2A
+#define LSHIFT_SCANCODE_RELEASED	0xAA
+#define RSHIFT_SCANCODE_PRESSED		0x36
+#define RSHIFT_SCANCODE_RELEASED	0xB6
+#define CAPSLOCK_SCANCODE			0x3A
+#define WHITE						0x00FFFFFF
+#define BLACK						0x00000000
 
 // PIC = Programmable Interrupt Controller
 #define PIC1			0x20		/* Master's address */
@@ -156,13 +163,14 @@ typedef struct {
 } __attribute__((packed)) idtr_t;
 
 typedef struct {
-    uint32_t *fb;
-    uint32_t pitch;
-    uint32_t width;
-    uint32_t height;
-    uint8_t *glyphs;
-    uint32_t cursor_x;
-    uint32_t cursor_y;
+    uint32_t	*fb;
+    uint32_t	pitch;
+    uint32_t	width;
+    uint32_t	height;
+    uint8_t		*glyphs;
+	uint32_t	char_size;
+    uint32_t	cursor_x;
+    uint32_t	cursor_y;
 } display_ctx_t;
 
 extern display_ctx_t g_display;
@@ -175,11 +183,11 @@ void		idt_init();
 void		PIC_remap(int offset1, int offset2);
 void		IRQ_set_mask(uint8_t IRQline);
 void		IRQ_clear_mask(uint8_t IRQline);
-uint8_t		*init_font();
+uint8_t		*init_font(uint32_t *out_charsize);
 void		outb(uint16_t port, uint8_t val);
 uint8_t		inb(uint16_t port);
 void		PIC_sendEOI(uint8_t irq);
-
+void		ft_putchar(uint8_t c, uint32_t color);
 
 
 #endif
