@@ -9,20 +9,7 @@ void kernel_main(uint32_t magic, struct multiboot_info *mbi) {
     if (!CHECK_FLAG(mbi->flags, 12)) return;    /* no framebuffer */
     if (mbi->framebuffer_bpp != 32) return;     /* this code write only 32bits pixels */
 
-    uint32_t *fb = (uint32_t *)(uintptr_t)mbi->framebuffer_addr;
-    uint32_t pitch = mbi->framebuffer_pitch;
-
-
-    /* remplit l'écran en bleu (si bpp == 32) */
-    for (uint32_t y = 0; y < mbi->framebuffer_height; y++) {
-        for (uint32_t x = 0; x < mbi->framebuffer_width; x++) {
-			if ((y <= mbi->framebuffer_height / 2 && x <= mbi->framebuffer_width / 2 )||
-					(y >= mbi->framebuffer_height / 2 && x >= mbi->framebuffer_width / 2 ))
-            fb[y * (pitch / 4) + x] = 0x000000FF;
-        }
-    }
-
-    glyphs = init_font();
+    glyphs = init_font(&(g_display.char_size));
     if (glyphs == 0x0){
 		return;
 	}
@@ -38,4 +25,6 @@ void kernel_main(uint32_t magic, struct multiboot_info *mbi) {
 	PIC_remap(0x20, 0x28);
 	IRQ_clear_mask(1);
 	idt_init();
+	ft_putchar('4', WHITE);
+	ft_putchar('2', WHITE);
 }
