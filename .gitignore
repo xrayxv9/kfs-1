@@ -1,5 +1,6 @@
 utils/
 *.o
 obj/
-github_kfs1_iso/.git
+github_kfs1_iso/
+isodir/
 kfs1
