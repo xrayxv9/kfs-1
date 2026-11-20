@@ -39,11 +39,10 @@ static char scancode_to_char(uint8_t scancode) {
     bool shift = lshift || rshift;
     char c = shift ? keymap_shift[scancode] : keymap_normal[scancode];
 
-    // Gestion simple de CapsLock sur les lettres
     if (capslock && c >= 'a' && c <= 'z') {
-        c = (char)(c - 'a' + 'A');
+        c = (char)(c + ' ');
     } else if (capslock && shift && c >= 'A' && c <= 'Z') {
-        c = (char)(c - 'A' + 'a');
+        c = (char)(c - ' ');
     }
 
     return c;
@@ -51,7 +50,6 @@ static char scancode_to_char(uint8_t scancode) {
 
 void keyboard_handler(void) {
     uint8_t scancode = inb(0x60);
-	uint32_t color = 0x00000000;
 
     if (scancode == 0xE0) {
         extended = true;
@@ -61,35 +59,24 @@ void keyboard_handler(void) {
 
     if (extended) {
         extended = false;
-        // Ici scancode & 0x7F vaut par ex. 0x48 (Haut), 0x50 (Bas), 0x53 (Suppr)
         PIC_sendEOI(1);
         return;
     }
 
-    if (scancode == 0x2A) {
+    if (scancode == LSHIFT_SCANCODE_PRESSED) {
         lshift = true;
-    } else if (scancode == 0xAA) {
+    } else if (scancode == LSHIFT_SCANCODE_RELEASED) {
         lshift = false;
-    } else if (scancode == 0x36) {
+    } else if (scancode == RSHIFT_SCANCODE_PRESSED) {
         rshift = true;
-    } else if (scancode == 0xB6) {
+    } else if (scancode == RSHIFT_SCANCODE_RELEASED) {
         rshift = false;
-    } else if (scancode == 0x3A) {
+    } else if (scancode == CAPSLOCK_SCANCODE) {
         capslock = !capslock;
     } else if (!(scancode & 0x80)) {
         char c = scancode_to_char(scancode);
         if (c != 0) {
-			for (uint32_t y = 0; y < g_display.height; y++) {
-				for (uint32_t x = 0; x < g_display.width; x++) {
-					if ((y <= g_display.height / 2 && x <= g_display.width / 2 )||
-							(y >= g_display.height / 2 && x >= g_display.width / 2 ))
-					g_display.fb[y * (g_display.pitch / 4) + x] = (color | c) << 4;
-					else{
-						g_display.fb[y * (g_display.pitch / 4) + x] = (color | c) << 20;
-					}
-
-				}
-			}
+			ft_putchar(c, WHITE);
         }
     }
 	
